@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Calculadora</string>
+    <string name="coloque_o_calculo">Coloque o calculo</string>
+    <string name="resultado">resultado</string>
+    <string name="Calcular">Calcular</string>
+    <string name="operacao_invalida">Operação invalida</string>
+</resources>
