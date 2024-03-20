@@ -30,18 +30,17 @@ class MainActivity : AppCompatActivity() {
         val button = findViewById<TextView>(id.button)
         email= "surdomudo@cegomail.com"
         senha= "123456"
-        while (true) {
-            button.setOnClickListener {
-                val emailTela= findViewById<EditText>(id.EmailAddress)
-                val senhaTela = findViewById<EditText>(id.Senha)
-                if (email == emailTela.text.toString() && senha == senhaTela.text.toString()) {
-                    setContentView(layout.activity_logged)
-                } else {
-                    findViewById<TextView>(id.textView).text = "Email ou senha incorretos"
-                }
-
+        button.setOnClickListener {
+            val emailTela= findViewById<EditText>(id.EmailAddress)
+            val senhaTela = findViewById<EditText>(id.Senha)
+            if (email == emailTela.text.toString() && senha == senhaTela.text.toString()) {
+                setContentView(layout.activity_logged)
+            } else {
+                findViewById<TextView>(id.textView).text = "Email ou senha incorretos"
             }
+
         }
+
 
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

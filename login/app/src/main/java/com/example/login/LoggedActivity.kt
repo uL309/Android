@@ -24,11 +24,11 @@ class LoggedActivity : AppCompatActivity() {
             resultIntent.putExtra("resultKey", result)
             setResult(RESULT_OK, resultIntent)
             finish()
-            setContentView(R.layout.activity_main)
+            val mainActivityIntent = Intent(this, MainActivity::class.java)
+            startActivity(mainActivityIntent)
+
+
         }
-
-
-
     }
 
 }
