@@ -30,6 +30,13 @@
             android:layout_height="wrap_content"
             android:text="Rotate" />
 
+        <Button
+            android:id="@+id/buttonEdgeDetection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Detect Edges"/>
+
+
         <Spinner
             android:id="@+id/filterSpinner"
             android:layout_width="180dp"

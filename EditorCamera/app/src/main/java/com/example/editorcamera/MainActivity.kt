@@ -11,30 +11,37 @@ import android.media.ImageReader
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
-import android.util.Log
 import android.util.Size
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
+import android.view.animation.AlphaAnimation
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.PopupWindow
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
+import kotlin.concurrent.schedule
 
 
 class MainActivity : AppCompatActivity() {
 
-    private val TAG = "Camera2Example"
     private val REQUEST_CAMERA_PERMISSION = 200
     private val REQUEST_EDIT_IMAGE = 201
 
     private lateinit var mSurfaceView: SurfaceView
     private lateinit var mCaptureButton: Button
 
-    private lateinit var mCameraManager: CameraManager
-    private lateinit var mCameraId: String
+
     private var mCameraDevice: CameraDevice? = null
     private lateinit var mCaptureSession: CameraCaptureSession
     private lateinit var mPreviewRequestBuilder: CaptureRequest.Builder
@@ -57,7 +64,13 @@ class MainActivity : AppCompatActivity() {
                 openCamera()
             }
 
-            override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
+            override fun surfaceChanged(
+                holder: SurfaceHolder,
+                format: Int,
+                width: Int,
+                height: Int
+            ) {
+            }
 
             override fun surfaceDestroyed(holder: SurfaceHolder) {
                 closeCamera()
@@ -71,9 +84,17 @@ class MainActivity : AppCompatActivity() {
         val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
             // Verifica permissões
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.CAMERA
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 // Solicita permissão se não estiver concedida
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.CAMERA),
+                    REQUEST_CAMERA_PERMISSION
+                )
                 return
             }
 
@@ -89,13 +110,15 @@ class MainActivity : AppCompatActivity() {
             val characteristics = cameraManager.getCameraCharacteristics(cameraId)
             val map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
             val outputSizes = map?.getOutputSizes(SurfaceTexture::class.java) ?: arrayOf()
-            val previewSize = chooseOptimalSize(outputSizes, mSurfaceView.width, mSurfaceView.height)
+            val previewSize =
+                chooseOptimalSize(outputSizes, mSurfaceView.width, mSurfaceView.height)
 
             // Configura a dimensão do SurfaceView
             mSurfaceView.holder.setFixedSize(previewSize.width, previewSize.height)
 
             // Configura a dimensão do ImageReader
-            mImageReader = ImageReader.newInstance(previewSize.width, previewSize.height, ImageFormat.JPEG, 1)
+            mImageReader =
+                ImageReader.newInstance(previewSize.width, previewSize.height, ImageFormat.JPEG, 1)
             val mOnImageAvailableListener = ImageReader.OnImageAvailableListener { reader ->
                 val image = reader.acquireNextImage()
                 val buffer = image.planes[0].buffer
@@ -141,34 +164,51 @@ class MainActivity : AppCompatActivity() {
         val sortedSizes = outputSizes.sortedWith(compareBy { it.height * it.width })
 
         // Return the smallest size that is at least as large as the desired size, or the largest size if none are big enough
-        return sortedSizes.firstOrNull { it.width >= width && it.height >= height } ?: sortedSizes.last()
+        return sortedSizes.firstOrNull { it.width >= width && it.height >= height }
+            ?: sortedSizes.last()
     }
 
 
     private fun createCameraPreviewSession() {
         try {
             val surface = mSurfaceView.holder.surface
-            mPreviewRequestBuilder = mCameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+            mPreviewRequestBuilder =
+                mCameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
             mPreviewRequestBuilder.addTarget(surface)
 
-            mCameraDevice!!.createCaptureSession(Arrays.asList(surface, mImageReader.surface), object : CameraCaptureSession.StateCallback() {
-                override fun onConfigured(session: CameraCaptureSession) {
-                    if (mCameraDevice == null) {
-                        return
+            mCameraDevice!!.createCaptureSession(
+                Arrays.asList(surface, mImageReader.surface),
+                object : CameraCaptureSession.StateCallback() {
+                    override fun onConfigured(session: CameraCaptureSession) {
+                        if (mCameraDevice == null) {
+                            return
+                        }
+                        mCaptureSession = session
+                        try {
+                            mPreviewRequestBuilder.set(
+                                CaptureRequest.CONTROL_AF_MODE,
+                                CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                            )
+                            mCaptureSession.setRepeatingRequest(
+                                mPreviewRequestBuilder.build(),
+                                null,
+                                mBackgroundHandler
+                            )
+                        } catch (e: CameraAccessException) {
+                            e.printStackTrace()
+                        }
                     }
-                    mCaptureSession = session
-                    try {
-                        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
-                        mCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(), null, mBackgroundHandler)
-                    } catch (e: CameraAccessException) {
-                        e.printStackTrace()
-                    }
-                }
 
-                override fun onConfigureFailed(session: CameraCaptureSession) {
-                    Toast.makeText(this@MainActivity, "Failed to create camera session", Toast.LENGTH_SHORT).show()
-                }
-            }, null)
+                    override fun onConfigureFailed(session: CameraCaptureSession) {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Failed to create camera session",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
+                null
+            )
         } catch (e: CameraAccessException) {
             e.printStackTrace()
         }
@@ -177,7 +217,8 @@ class MainActivity : AppCompatActivity() {
     private fun captureImage() {
         mCameraDevice?.let { camera ->
             try {
-                val captureBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+                val captureBuilder =
+                    camera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
                 captureBuilder.addTarget(mImageReader.surface)
 
                 mCaptureSession.stopRepeating()
@@ -249,9 +290,35 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == REQUEST_EDIT_IMAGE && resultCode == RESULT_OK) {
             val editedImagePath = data?.getStringExtra("editedImagePath")
             if (editedImagePath != null) {
-                // Faça algo com o caminho da imagem editada, como exibir ou processar
+                showPopupMessage("Imagem salva")
             }
         }
     }
+
+    fun showPopupMessage(message: String) {
+        val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.popup_layout, null)
+
+        val textView = view.findViewById<TextView>(R.id.popupText)
+        textView.text = message
+
+        val popupWindow = PopupWindow(
+            view,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+
+        popupWindow.isFocusable = true
+
+        val location = IntArray(2)
+        // Coloque a posição do popup na tela, por exemplo, no centro
+        val parent = findViewById<View>(R.id.activity_main)
+        parent.getLocationOnScreen(location)
+        popupWindow.showAtLocation(parent, Gravity.CENTER, 0, 0)
+
+        // Defina um tempo para o popup ser fechado após algum tempo, por exemplo, 2 segundos
+        Handler().postDelayed({ popupWindow.dismiss() }, 2000)
+    }
+
 
 }

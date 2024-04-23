@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
@@ -35,6 +36,7 @@ class EditImageActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var buttonSave: Button
     private lateinit var contrastSeekBar: SeekBar
     private lateinit var brightnessSeekBar: SeekBar
+    private lateinit var buttonEdgeDetection: Button
 
     private lateinit var imagePath: String
 
@@ -43,7 +45,6 @@ class EditImageActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var originalBitmap: Bitmap
     private lateinit var editedBitmap: Bitmap
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,9 +56,11 @@ class EditImageActivity : AppCompatActivity(), View.OnClickListener {
         buttonSave = findViewById(R.id.buttonSave)
         contrastSeekBar = findViewById(R.id.contrastSeekBar)
         brightnessSeekBar = findViewById(R.id.brightnessSeekBar)
+        buttonEdgeDetection = findViewById(R.id.buttonEdgeDetection)
 
         buttonRotate.setOnClickListener(this)
         buttonSave.setOnClickListener(this)
+        buttonEdgeDetection.setOnClickListener(this)
 
         val filterOptions = resources.getStringArray(R.array.filter_options)
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, filterOptions)
@@ -65,12 +68,7 @@ class EditImageActivity : AppCompatActivity(), View.OnClickListener {
         filterSpinner.adapter = adapter
 
         filterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 applyFilter(position)
             }
 
@@ -92,11 +90,9 @@ class EditImageActivity : AppCompatActivity(), View.OnClickListener {
         // Configurar listeners para as SeekBars
         contrastSeekBar.setOnSeekBarChangeListener(seekBarChangeListener)
         brightnessSeekBar.setOnSeekBarChangeListener(seekBarChangeListener)
-
     }
 
-
-        override fun onClick(view: View?) {
+    override fun onClick(view: View?) {
         when (view?.id) {
             R.id.buttonRotate -> {
                 rotateImage(90f)
@@ -104,8 +100,59 @@ class EditImageActivity : AppCompatActivity(), View.OnClickListener {
             R.id.buttonSave -> {
                 saveImageToGallery(editedBitmap)
             }
+            R.id.buttonEdgeDetection -> {
+                detectEdges()
+            }
         }
     }
+
+    private fun detectEdges() {
+        val edgesBitmap = applySobel(originalBitmap)
+        imageView.setImageBitmap(edgesBitmap)
+        editedBitmap = edgesBitmap
+    }
+
+    private fun applySobel(bitmap: Bitmap): Bitmap {
+        val sobelX = arrayOf(intArrayOf(-1, 0, 1), intArrayOf(-2, 0, 2), intArrayOf(-1, 0, 1))
+        val sobelY = arrayOf(intArrayOf(-1, -2, -1), intArrayOf(0, 0, 0), intArrayOf(1, 2, 1))
+
+        val grayscale = toGrayscale(bitmap)
+        val edgesBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.RGB_565)
+
+        for (y in 1 until bitmap.height - 1) {
+            for (x in 1 until bitmap.width - 1) {
+                var sumX = 0
+                var sumY = 0
+
+                for (i in -1..1) {
+                    for (j in -1..1) {
+                        val pixel = grayscale[y + i][x + j]
+                        sumX += pixel * sobelX[i + 1][j + 1]
+                        sumY += pixel * sobelY[i + 1][j + 1]
+                    }
+                }
+
+                val magnitude = Math.sqrt((sumX * sumX + sumY * sumY).toDouble()).toInt()
+                edgesBitmap.setPixel(x, y, Color.rgb(magnitude, magnitude, magnitude))
+            }
+        }
+
+        return edgesBitmap
+    }
+
+    private fun toGrayscale(bitmap: Bitmap): Array<IntArray> {
+        val grayscale = Array(bitmap.height) { IntArray(bitmap.width) }
+
+        for (y in 0 until bitmap.height) {
+            for (x in 0 until bitmap.width) {
+                val pixel = bitmap.getPixel(x, y)
+                grayscale[y][x] = (Color.red(pixel) * 0.299 + Color.green(pixel) * 0.587 + Color.blue(pixel) * 0.114).toInt()
+            }
+        }
+
+        return grayscale
+    }
+
 
     private fun applyFilter(position: Int) {
         val bitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true)
@@ -271,6 +318,12 @@ class EditImageActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
         }.start()
+
+        val returnIntent = Intent()
+
+        val imageUri= MediaStore.Images.Media.insertImage(contentResolver, bitmap, "Title", null)
+        returnIntent.putExtra("editedImagePath", imageUri)
+        setResult(RESULT_OK, returnIntent)
 
         // Finaliza a Activity
         finish()
