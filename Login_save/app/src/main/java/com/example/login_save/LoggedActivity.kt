@@ -9,7 +9,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.login_save.databinding.ActivityLoggedBinding
 
-class loggedActivity : AppCompatActivity() {
+class LoggedActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityLoggedBinding

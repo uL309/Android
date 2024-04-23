@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@id/buttonsLayout"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+
+    <LinearLayout
+        android:id="@+id/buttonsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/buttonRotate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rotate" />
+
+        <Spinner
+            android:id="@+id/filterSpinner"
+            android:layout_width="180dp"
+            android:layout_height="wrap_content"
+            android:entries="@array/filter_options" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/slidersLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/buttonsLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/contrastLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Contraste"
+            android:textAppearance="?android:textAppearanceMedium" />
+
+        <SeekBar
+            android:id="@+id/contrastSeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="200"
+            android:progress="100"
+            android:thumbTint="@color/purple" />
+
+        <TextView
+            android:id="@+id/brightnessLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Brilho"
+            android:textAppearance="?android:textAppearanceMedium" />
+
+        <SeekBar
+            android:id="@+id/brightnessSeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="200"
+            android:progress="100"
+            android:thumbTint="@color/purple" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Salvar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
