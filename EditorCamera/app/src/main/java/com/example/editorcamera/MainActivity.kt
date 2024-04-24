@@ -177,7 +177,7 @@ class MainActivity : AppCompatActivity() {
             mPreviewRequestBuilder.addTarget(surface)
 
             mCameraDevice!!.createCaptureSession(
-                Arrays.asList(surface, mImageReader.surface),
+                listOf(surface, mImageReader.surface),
                 object : CameraCaptureSession.StateCallback() {
                     override fun onConfigured(session: CameraCaptureSession) {
                         if (mCameraDevice == null) {
