@@ -311,7 +311,7 @@ class MainActivity : AppCompatActivity() {
         popupWindow.isFocusable = true
 
         val location = IntArray(2)
-        // Coloque a posição do popup na tela, por exemplo, no centro
+        // Coloque a posição do popup na tela no centro
         val parent = findViewById<View>(R.id.activity_main)
         parent.getLocationOnScreen(location)
         popupWindow.showAtLocation(parent, Gravity.CENTER, 0, 0)
