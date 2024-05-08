@@ -1,15 +1,21 @@
 package com.example.pokedex
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.WindowManager
 import android.widget.Button
+import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.room.Room
-import com.example.pokedex.database.AppDatabase
+import com.example.pokedex.database.DatabaseProvider
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -20,10 +26,7 @@ class MainActivity : AppCompatActivity() {
     private var login:TextView = findViewById(R.id.login)
     private var password:TextView = findViewById(R.id.Password)
     private var logged:Boolean = false
-    private val db = Room.databaseBuilder(
-        applicationContext,
-        AppDatabase::class.java, "pokedex-database"
-    ).build()
+    private val db = DatabaseProvider.getDatabase(this)
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://pokeapi.co/api/v2/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -45,18 +48,48 @@ class MainActivity : AppCompatActivity() {
             if (logged){
                 // Go to next activity
             } else {
-                // Show error message
+                showPopupMessage("Login ou senha incorretos")
             }
         }
         button2.setOnClickListener {
             val intent = Intent(this, Create_Login::class.java)
+            startActivity(intent)
         }
 
 
     }
 
-    fun login(name: String, password: String): Boolean{
-        // Login logic
+    private fun login(name: String, password: String): Boolean{
+        val user = db.userDao().findByName(name)
+        if (user.password != password){
+            return false
+        }
         return true
     }
+
+    fun showPopupMessage(message: String) {
+        val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.popup_layout, null)
+
+        val textView = view.findViewById<TextView>(R.id.popupText)
+        textView.text = message
+
+        val popupWindow = PopupWindow(
+            view,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+
+        popupWindow.isFocusable = true
+
+        val location = IntArray(2)
+        // Coloque a posição do popup na tela no centro
+        val parent = findViewById<View>(R.id.main)
+        parent.getLocationOnScreen(location)
+        popupWindow.showAtLocation(parent, Gravity.CENTER, 0, 0)
+
+        // Defina um tempo para o popup ser fechado após algum tempo, por exemplo, 2 segundos
+        Handler().postDelayed({ popupWindow.dismiss() }, 2000)
+    }
+
 }

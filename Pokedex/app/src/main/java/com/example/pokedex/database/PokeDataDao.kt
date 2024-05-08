@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import com.example.pokedex.data.PokeList
 
 @Dao
 interface PokeDataDao {
@@ -11,7 +12,7 @@ interface PokeDataDao {
     fun allPokemon(name: List<PokeData>): PokeData
 
     @Insert
-    fun insert(vararg pokedatas: PokeData)
+    fun insert(vararg pokedatas: PokeList)
 
     @Delete
     fun delete(pokeData: PokeData)

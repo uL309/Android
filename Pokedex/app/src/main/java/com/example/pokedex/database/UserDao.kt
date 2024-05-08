@@ -10,6 +10,9 @@ interface UserDao {
     @Query("SELECT * FROM user ")
     fun allNames(name: List<User>): User
 
+    @Query("SELECT * FROM user WHERE name LIKE :name")
+    fun findByName(name: String): User
+
     @Insert
     fun insert(vararg users: User)
 

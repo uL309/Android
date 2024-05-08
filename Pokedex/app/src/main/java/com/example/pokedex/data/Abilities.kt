@@ -1,5 +1,14 @@
 package com.example.pokedex.data
 
-class Abilities {
+data class Abilities (
+    val ability: Ability,
+    val is_hidden: Boolean,
+    val slot: Int
+)
 
-}
+data class Ability (
+    val name: String,
+    val url: String
+)
+
+
