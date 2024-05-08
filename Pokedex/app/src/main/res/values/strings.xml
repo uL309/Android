@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name" translatable="false">Pokedex</string>
+    <string name="editTextText">Name</string>
+    <string name="editTextTextPassword">Password</string>
+    <string name="button">Login</string>
+    <string name="button2">Register</string>
+    <string name="buttonCreate">Create Login</string>
+</resources>
