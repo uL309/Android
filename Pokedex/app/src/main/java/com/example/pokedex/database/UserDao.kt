@@ -7,8 +7,8 @@ import androidx.room.Query
 
 @Dao
 interface UserDao {
-    @Query("SELECT * FROM user ")
-    fun allNames(name: List<User>): User
+    @Query("SELECT * FROM user")
+    fun allNames(): List<User>
 
     @Query("SELECT * FROM user WHERE name LIKE :name")
     fun findByName(name: String): User
@@ -18,5 +18,4 @@ interface UserDao {
 
     @Delete
     fun delete(user: User)
-
 }

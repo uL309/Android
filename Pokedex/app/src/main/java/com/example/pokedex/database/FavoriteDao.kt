@@ -8,7 +8,7 @@ import androidx.room.Query
 @Dao
 interface FavoriteDao {
     @Query("SELECT * FROM favorite")
-    fun allFavorite(name: List<Favorite>): Favorite
+    fun allFavorite(): List<Favorite>
     @Insert
     fun insert(vararg favorites: Favorite)
     @Delete

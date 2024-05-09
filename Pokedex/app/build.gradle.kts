@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.googledevtoolsksp)
 }
 
 android {
@@ -43,11 +44,10 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.androidx.room.gradle.plugin)
-    implementation(libs.com.google.devtools.ksp.gradle.plugin)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     annotationProcessor(libs.androidx.room.compiler)
-    //ksp(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

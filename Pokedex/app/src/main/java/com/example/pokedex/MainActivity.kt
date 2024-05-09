@@ -15,18 +15,19 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.pokedex.database.AppDatabase
 import com.example.pokedex.database.DatabaseProvider
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 
 class MainActivity : AppCompatActivity() {
-    private val button1:Button = findViewById(R.id.button)
-    private val button2:Button = findViewById(R.id.button2)
-    private var login:TextView = findViewById(R.id.login)
-    private var password:TextView = findViewById(R.id.Password)
+    private lateinit var button1: Button
+    private lateinit var button2: Button
+    private lateinit var login: TextView
+    private lateinit var password: TextView
     private var logged:Boolean = false
-    private val db = DatabaseProvider.getDatabase(this)
+    private lateinit var db: AppDatabase
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://pokeapi.co/api/v2/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -42,7 +43,14 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        button1 = findViewById(R.id.button)
+        button2 = findViewById(R.id.button2)
+        login = findViewById(R.id.login)
+        password = findViewById(R.id.Password)
+        db = DatabaseProvider.getDatabase(this)
+
         Firstload(db,retrofit).firstload()
+
         button1.setOnClickListener {
             logged=login(login.text.toString(),password.text.toString())
             if (logged){
