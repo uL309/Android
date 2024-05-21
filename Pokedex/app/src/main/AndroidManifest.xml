@@ -17,6 +17,13 @@
         android:theme="@style/Theme.Pokedex"
         tools:targetApi="31">
         <activity
+            android:name=".sumary"
+            android:exported="false" />
+        <activity
+            android:name=".list"
+            android:exported="false"
+            android:theme="@style/Theme.Pokedex" />
+        <activity
             android:name=".Create_Login"
             android:exported="false" />
         <activity

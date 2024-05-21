@@ -9,6 +9,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.pokedex.database.DatabaseProvider
+import com.example.pokedex.database.User
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class Create_Login : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,7 +31,10 @@ class Create_Login : AppCompatActivity() {
         val db = DatabaseProvider.getDatabase(this)
 
         button.setOnClickListener {
-            db.userDao().insert(com.example.pokedex.database.User(0,login.text.toString(),password.text.toString()))
+            val user = User(0,login.text.toString(), password.text.toString())
+            CoroutineScope(Dispatchers.IO).launch {
+                db.userDao().insert(user)
+            }
             val returnIntent= Intent()
             setResult(RESULT_OK,returnIntent)
             finish()

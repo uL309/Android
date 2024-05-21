@@ -5,4 +5,7 @@
     <string name="button">Login</string>
     <string name="button2">Register</string>
     <string name="buttonCreate">Create Login</string>
+    <string name="textView3">Type</string>
+
+
 </resources>

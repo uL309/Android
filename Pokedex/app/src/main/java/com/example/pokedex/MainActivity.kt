@@ -17,6 +17,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.pokedex.database.AppDatabase
 import com.example.pokedex.database.DatabaseProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -26,7 +30,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var button2: Button
     private lateinit var login: TextView
     private lateinit var password: TextView
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private var logged:Boolean = false
+    private lateinit var intent: Intent
     private lateinit var db: AppDatabase
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://pokeapi.co/api/v2/")
@@ -54,25 +60,28 @@ class MainActivity : AppCompatActivity() {
         button1.setOnClickListener {
             logged=login(login.text.toString(),password.text.toString())
             if (logged){
-                // Go to next activity
+                intent = Intent(this, list::class.java)
+                startActivity(intent)
             } else {
                 showPopupMessage("Login ou senha incorretos")
             }
         }
         button2.setOnClickListener {
-            val intent = Intent(this, Create_Login::class.java)
+            intent = Intent(this, Create_Login::class.java)
             startActivity(intent)
         }
 
 
     }
 
-    private fun login(name: String, password: String): Boolean{
-        val user = db.userDao().findByName(name)
-        if (user.password != password){
-            return false
+    private fun login(name: String, password: String): Boolean {
+        return runBlocking {
+            val user = coroutineScope.async(Dispatchers.IO) {
+                db.userDao().findByName(name)
+            }.await()
+
+            user?.password == password
         }
-        return true
     }
 
     fun showPopupMessage(message: String) {

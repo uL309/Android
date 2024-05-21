@@ -10,7 +10,7 @@ import com.example.pokedex.data.Types
 data class PokeData(
     @PrimaryKey val id: Int,
     @ColumnInfo(name = "name") val name: String,
-    @TypeConverters(TypesConverter::class) @ColumnInfo(name = "type") val type: Types,
+    @TypeConverters(TypesConverter::class) @ColumnInfo(name = "type") val type: List<Types>,
     @ColumnInfo(name = "path") val photo: String? = null
 )
 
